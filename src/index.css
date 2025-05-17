@@ -1,68 +1,511 @@
-:root {
-  font-family: system-ui, Avenir, Helvetica, Arial, sans-serif;
-  line-height: 1.5;
-  font-weight: 400;
+/* index.css */
 
-  color-scheme: light dark;
-  color: rgba(255, 255, 255, 0.87);
-  background-color: #242424;
+@import url('https://fonts.googleapis.com/css2?family=Barlow+Semi+Condensed:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=Barlow:ital,wght@0,100;0,200;0,300;0,400;0,500;0,600;0,700;0,800;0,900;1,100;1,200;1,300;1,400;1,500;1,600;1,700;1,800;1,900&family=League+Gothic&family=Limelight&family=Protest+Guerrilla&family=Rubik+Glitch&family=Rubik:ital,wght@0,300..900;1,300..900&display=swap');
 
-  font-synthesis: none;
-  text-rendering: optimizeLegibility;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
-a {
-  font-weight: 500;
-  color: #646cff;
-  text-decoration: inherit;
-}
-a:hover {
-  color: #535bf2;
-}
-
+/* Global Styles */
 body {
   margin: 0;
+  padding: 0;
+  font-family: 'Barlow', sans-serif;
+  font-weight: 400;
+  font-style: normal;
+  background-color: white;
+}
+
+/* Navigation Bar Styles */
+nav {
+  font-family: "Barlow Semi Condensed", sans-serif;
+  font-weight: 600;
+  font-style: normal;
+  font-size: 15pt;
+  max-width: 1200px;
+  margin: auto
+}
+
+nav img {
+  margin-left: 20px;
+  margin-right: 275px;
+  transform: scale(1.2);
+}
+
+nav ul {
   display: flex;
-  place-items: center;
-  min-width: 320px;
-  min-height: 100vh;
+  list-style: none;
+  padding: 0;
 }
 
-h1 {
-  font-size: 3.2em;
-  line-height: 1.1;
+nav ul li {
+  margin: auto;
 }
 
+
+nav ul li a {
+  text-decoration: none;
+  color: #0c2e6e;
+  border-radius: 4px;
+}
+
+nav ul li a:hover {
+  transition: 0.3s;
+  color: #009cdf;
+}
+
+
+
+/* Container Class */
+.container {
+  max-width: 1100px;
+  margin: 2rem auto;
+  padding: 1rem;
+}
+
+/* Headings */
+h1,
+h2 {
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+/* Form Styles */
+form div {
+  margin-bottom: 1rem;
+}
+
+label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: bold;
+  color: #555;
+}
+
+input[type="text"],
+input[type="email"],
+input[type="password"],
+input[type="date"],
+input[type="time"],
+input[type="number"] {
+  width: 100%;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  margin-top: 0.25rem;
+}
+
+/* Button Styles */
 button {
-  border-radius: 8px;
-  border: 1px solid transparent;
-  padding: 0.6em 1.2em;
-  font-size: 1em;
-  font-weight: 500;
-  font-family: inherit;
-  background-color: #1a1a1a;
+  background-color: #1c1c1c;
+  color: #fff;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
   cursor: pointer;
-  transition: border-color 0.25s;
-}
-button:hover {
-  border-color: #646cff;
-}
-button:focus,
-button:focus-visible {
-  outline: 4px auto -webkit-focus-ring-color;
+  transition: background 0.3s;
 }
 
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
+button:hover {
+  background-color: #333;
+}
+
+/* Message and Error Styling */
+.message {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: green;
+}
+
+.error {
+  margin-top: 1rem;
+  font-weight: bold;
+  color: red;
+}
+
+/* ------------------- */
+/* Hero Section Styles */
+/* ------------------- */
+.hero {
+  position: relative;
+  width: 100%;
+  display: flex;
+}
+
+.hero video {
+  width: 100%;
+}
+
+.hero-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(76, 144, 205, 0.55); /* Dark overlay */
+  display: flex;
+  justify-content: center;
+}
+
+.hero-content {
+  position: relative; /* So text is above the overlay */
+  margin-top: 100px;
+  width: 80%;
+  color: #fff;
+}
+
+.hero-content h1 {
+  color: white;
+  font-size: 4rem;
+  margin-bottom: 1rem;
+  text-transform: uppercase; /* Optional styling choice */
+  text-align: left;
+}
+
+.hero-content p {
+  font-size: 1.3rem;
+  margin-bottom: 2rem;
+  line-height: 1.6;
+  max-width: 600px;
+  text-align: left;
+  font-family: "Barlow", sans-serif;
+  font-weight: 400;
+  font-style: normal;
+}
+
+.book-button {
+  background-color: #46741a; 
+  color: #fff;
+  text-decoration: none;
+  padding: 0.9rem 2.5rem;
+  font-weight: 400;
+  font-size: 16pt;
+  transition: background 0.3s;
+  display: inline-block; /* Ensures padding is clickable */
+}
+
+.book-button:hover {
+  background-color: #2f4916;
+}
+
+.top-bar {
+  padding: 1px 0;
+  background-color: white;
+}
+
+.top-bar-content {
+  max-width: 1200px;
+  margin: auto;
+  color: white;
+  font-size: 10pt;
+}
+
+.top-bar-content ul {
+  display: flex;
+  list-style: none;
+  padding: 0;
+}
+
+.top-bar-content li {
+  margin-right: 75px;
+}
+
+.top-bar-content a {
+  color: white;
+  font-style: normal;
+}
+
+/* Container that splits the page 50/50 */
+.container2 {
+  display: flex;
+  height: 100vh; /* Full viewport height */
+}
+
+/* Each half takes up 50% width */
+.half {
+  z-index: 1;
+  width: 50%;
+}
+
+/* Left side: Image */
+.image-side img {
+  position: relative;
+  width: 80%;
+  padding-left: 50px;
+  margin: 80px auto;
+  object-fit: cover; /* Ensures the image covers the area */
+  display: block;
+}
+
+/* Right side: Text content */
+.text-side {
+  width: 42%;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  text-align: left;
+}
+
+/* Headings and Paragraphs */
+.text-side h3 {
+  color: #46741a; /* Example red color for WELCOME TO */
+  font-size: 1.4rem;
+  margin-bottom: -20px;
+}
+
+.text-side h1 {
+  color: #003399; /* Deep blue color for main title */
+  font-size: 3rem;
+  margin-bottom: 20px;
+}
+
+.text-side p {
+  color: #333;
+  font-size: 1rem;
+  margin-bottom: 20px;
+  line-height: 1.6;
+}
+
+ /* Services Section Styling */
+.services-section {
+  position:relative;
+  background-color: #f1f1f1;
+  z-index: 10;
+}
+
+ #services {
+  padding: 40px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+#services h2 {
+  text-align: center;
+  margin-bottom: 40px;
+  font-size: 2rem;
+  color: #003399;
+}
+
+.services-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 20px;
+}
+
+.service {
+  background-color: #fafafa;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+  text-align: center;
+  padding: 20px;
+  transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+
+.service:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+}
+
+.service .icon {
+  font-size: 3rem;
+  margin-bottom: 15px;
+  color: #46741a;
+}
+
+.service h3 {
+  margin-bottom: 10px;
+  font-size: 1.25rem;
+  color: #333;
+}
+
+.service p {
+  font-size: 0.95rem;
+  color: #666;
+  padding: 0 10px;
+}
+
+.section-title {
+  text-align: center;
+  font-size: 32pt;
+}
+
+.section-subtitle {
+  text-align: center;
+  font-family: "Barlow Semi Condensed", sans-serif;
+  font-weight: lighter;
+  font-size: 20pt;
+  margin-top: 0px;
+  margin-bottom: 40px;
+}
+
+.select-date-calendar {
+  font-size: 0.85rem;  /* shrink text a bit */
+}
+
+/* optionally adjust each day cell to fit */
+.select-date-calendar .react-datepicker__day {
+  width: 3.5em;
+  height: 3.5em;
+  line-height: 2.2em;
+}
+
+.select-date-calendar .react-datepicker__header {
+  background: #0c2e6e;
+  padding: 8px;
+  border: none;
+  padding-bottom: 15px;
+}
+.select-date-calendar .react-datepicker__current-month {
+  color: #fff;
+  font-size: 1.2rem;
+  font-weight: 500;
+  padding-bottom: 10px;
+}
+
+.select-date-calendar .react-datepicker__day-name {
+  color: #fff;
+  padding: 0 10px 0 10px;
+}
+
+/* 3) Day cells */
+.select-date-calendar .react-datepicker__day {
+  color: #333;
+}
+
+.select-date-calendar .react-datepicker__day:hover {
+  background: #e0f0ff;
+}
+.select-date-calendar .react-datepicker__day--selected,
+.select-date-calendar .react-datepicker__day--keyboard-selected {
+  background: #0c2e6e;
+  color: #fff;
+}
+.select-date-calendar .react-datepicker__day--today {
+  font-weight: 600;
+  border-bottom: 2px solid #46741a;
+}
+
+/* 4) Disabled days */
+.select-date-calendar .react-datepicker__day--disabled {
+  color: #bbb;
+  pointer-events: none;
+}
+
+#date-subtitle {
+  margin-top: 20px;
+}
+
+.confirm-booking-button {
+
+    width: 100%;
+    padding: 0.75rem 1rem;
+    font-size: 1rem;
+    background-color: #0c2e6e;
+    color: #fff;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+}
+
+.name-input {
+  display: 'flex';
+  flex-direction: 'column';
+}
+
+.details-form-label {
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.details-form-input {
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* AuthPage.css */
+
+.auth-container {
+  min-height: 100vh;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  background: linear-gradient(135deg, #f0f4f8 0%, #d9e2ec 100%);
+  padding: 1rem;
+}
+
+.auth-card {
+  width: 100%;
+  max-width: 400px;
+  background-color: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  padding: 2rem;
+}
+
+.auth-heading {
+  text-align: center;
+  margin-bottom: 1.5rem;
+  color: #0c2e6e;
+  font-size: 1.75rem;
+}
+
+.auth-form {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+  gap: 1rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.form-group.full-width {
+  grid-column: 1 / -1;
+}
+
+.auth-label {
+  margin-bottom: 0.25rem;
+  font-weight: 500;
+}
+
+.auth-input {
+  padding: 0.5rem;
+  border: 1px solid #007bff;
+  border-radius: 4px;
+}
+
+.auth-submit {
+  grid-column: 1 / -1;
+  margin-top: 0.5rem;
+  padding: 0.75rem;
+  background-color: #0c2e6e;
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.auth-submit:hover {
+  background-color: #007bff;
+}
+
+.auth-toggle-text {
+  text-align: center;
+  margin-top: 1rem;
+  color: #555;
+}
+
+.auth-toggle-button {
+  background: none;
+  border: none;
+  color: #007bff;
+  text-decoration: underline;
+  cursor: pointer;
+  padding: 0;
+}
+
+.auth-error {
+  color: crimson;
+  text-align: center;
+  margin-top: 0.5rem;
 }
