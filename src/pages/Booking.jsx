@@ -204,7 +204,7 @@ function Booking({user}) {
           <BranchSelection
             branches={branches}
             onBranchSelect={handleBranchSelect}
-            mapKey="AIzaSyDSiiRWYXgXQhRMcKEfFsX7vQgen8K-QLI"
+            mapKey=""
           />
         </div>
       )}
