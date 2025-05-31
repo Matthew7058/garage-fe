@@ -1,5 +1,5 @@
 // BranchSelection.jsx
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useRef } from 'react';
 import { GoogleMap, Marker, useJsApiLoader } from '@react-google-maps/api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
@@ -93,6 +93,7 @@ const mapStyle = [
 export default function BranchSelection({ branches, onBranchSelect, mapKey }) {
   const [expandedId, setExpandedId] = useState(null);
   const [hoursByBranch, setHoursByBranch] = useState({});
+  const mapRef = useRef(null);
   const dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
   // center map on average of all branch coords
@@ -118,6 +119,15 @@ export default function BranchSelection({ branches, onBranchSelect, mapKey }) {
   const handleExpand = (id) => {
     const newId = expandedId === id ? null : id;
     setExpandedId(newId);
+
+    // zoom to selected branch on map
+    if (newId && mapRef.current) {
+      const branch = branches.find(b => b.id === newId);
+      if (branch) {
+        mapRef.current.panTo({ lat: Number(branch.lat), lng: Number(branch.lng) });
+        mapRef.current.setZoom(15);
+      }
+    }
 
     // Fetch hours if we’re expanding this branch and haven’t already
     if (newId && !hoursByBranch[newId]) {
@@ -243,6 +253,7 @@ export default function BranchSelection({ branches, onBranchSelect, mapKey }) {
             //center={{lat: 53.421946, lng: -2.118459}}
             zoom={12}
             options={mapOptions}
+            onLoad={map => { mapRef.current = map; }}
           >
             {branches.map((b) => (
               <Marker
@@ -255,6 +266,7 @@ export default function BranchSelection({ branches, onBranchSelect, mapKey }) {
                 //position={{ lat: 53.421946, lng: -2.118459}}
                 onClick={() => {
                   setExpandedId(b.id);
+                  handleExpand(b.id);
                   // optionally scroll card into view:
                   document
                     .querySelector(`[data-branch-id="${b.id}"]`)

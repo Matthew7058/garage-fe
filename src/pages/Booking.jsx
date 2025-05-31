@@ -2,10 +2,56 @@ import React, { useState, useEffect } from 'react';
 import DateSelection from '../components/DateSelection';
 import BranchSelection from '../components/BranchSelection';
 import ServiceSelection from '../components/ServiceSelection';
+import ReviewStep from '../components/ReviewStep';
+import ConfirmationStep from '../components/ConfirmationStep';
+
+// Progress bar configuration
+const progressSteps = [
+  { label: 'Location' },
+  { label: 'Service' },
+  { label: 'Date' },
+  { label: 'Time' },
+  { label: 'Review' }
+];
+
+const progressBarStyles = {
+  width: '60%',
+  margin: '40px auto 2rem',
+  display: 'flex',
+  justifyContent: 'space-between',
+  listStyle: 'none',
+  marginBottom: '2rem',
+  padding: 0
+};
+
+const baseCircleStyles = {
+  display: 'block',
+  margin: '0 auto 0.5rem',
+  width: '2rem',
+  height: '2rem',
+  borderRadius: '50%',
+  lineHeight: '2rem',
+  border: '2px solid #ccc'
+};
+
+const completedCircleStyles = {
+  ...baseCircleStyles,
+  backgroundColor: '#0c2e6e',
+  borderColor: '#0c2e6e',
+  color: '#fff'
+};
+
+const currentCircleStyles = {
+  ...baseCircleStyles,
+  borderColor: '#0c2e6e',
+  color: '#0c2e6e'
+};
 
 function Booking({user}) {
   // Wizard steps: 1=Branch selection, 2=Service, 3=Date, 4=Time, 5=Details
   const [step, setStep] = useState(1);
+  // Form error state for details validation
+  const [formError, setFormError] = useState('');
 
   // Data
   const [branches, setBranches] = useState([]);
@@ -24,10 +70,45 @@ function Booking({user}) {
   const [userDetails, setUserDetails] = useState({
     firstName: '',
     lastName: '',
-    email: ''
+    email: '',
+    phone: ''
   });
 
   const [message, setMessage] = useState('');
+  // Vehicle registration & comments
+  const [registration, setRegistration] = useState('');
+  const [comments, setComments] = useState('');
+  const [vehicleDetails, setVehicleDetails] = useState(null);
+  const [isVehicleValid, setIsVehicleValid] = useState(false);
+  const [vesError, setVesError] = useState('');
+
+  const [bookingInfo, setBookingInfo] = useState(null);
+
+  function handleFindVehicle() {
+    setVesError('');
+    setVehicleDetails(null);
+    setIsVehicleValid(false);
+    // Use DVLA VES API to validate registration
+    const vrn = registration.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    fetch('/api/validate-vehicle', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json'
+      },
+      body: JSON.stringify({ registrationNumber: vrn })
+    })
+      .then(res => {
+        if (!res.ok) throw new Error();
+        return res.json();
+      })
+      .then(data => {
+        setVehicleDetails(data);
+        setIsVehicleValid(true);
+      })
+      .catch(() => {
+        setVesError('Vehicle not found. Please check your registration or call the garage.');
+      });
+  }
 
   // 1) Fetch branches on mount
   useEffect(() => {
@@ -82,7 +163,7 @@ function Booking({user}) {
 
   // Date selection
   const handleDateSelect = (dateObj) => {
-    const iso = dateObj.toISOString().split('T')[0];  // "2025-05-15"
+    const iso = formatDateLocal(dateObj);
     setSelectedDate(iso);
     fetchAvailableTimes(iso);
     setStep(4);
@@ -99,17 +180,50 @@ function Booking({user}) {
     // generate hourly slots
     const [openHour] = hoursForDay.open_time.split(':').map(Number);
     const [closeHour] = hoursForDay.close_time.split(':').map(Number);
-    const slots = [];
-    for (let h = openHour; h < closeHour; h++) {
+    const length = selectedBookingType.length || 1;
+    const totalAvail = closeHour - openHour;
+    if (length > totalAvail) {
+      setMessage('Selected service extends beyond closing time; your car will need to be left overnight.');
+      setAvailableTimes([]);
+      return;
+    }
+    let slots = [];
+    for (let h = openHour; h <= closeHour - length; h++) {
       slots.push(`${String(h).padStart(2,'0')}:00:00`);
     }
 
-    // remove already-booked slots
+    // filter out past slots if booking for today
+    const todayStr = formatDateLocal(new Date());
+    if (date === todayStr) {
+      const now = new Date();
+      slots = slots.filter(s => {
+        const [hour, minute] = s.split(':').map(Number);
+        const slotDate = new Date();
+        slotDate.setHours(hour, minute, 0, 0);
+        return slotDate > now;
+      });
+    }
+
+    // remove already-booked slots with capacity logic
     fetch(`https://garage-w5eq.onrender.com/api/bookings/branch/${selectedBranch.id}/date/${date}`)
       .then(res => res.json())
       .then(({ bookings }) => {
-        const booked = bookings.map(b => b.booking_time);
-        setAvailableTimes(slots.filter(s => !booked.includes(s)));
+        // count existing 1-hour bookings per slot
+        const bookedCounts = {};
+        bookings.forEach(b => {
+          const type = bookingTypes.find(t => t.id === b.booking_type_id);
+          if (type && type.length === 1) {
+            bookedCounts[b.booking_time] = (bookedCounts[b.booking_time] || 0) + 1;
+          }
+        });
+        const available = slots.filter(s => {
+          // apply capacity only for 1-hour bookings
+          if (length === 1) {
+            return (bookedCounts[s] || 0) < hoursForDay.capacity_per_hour;
+          }
+          return true;
+        });
+        setAvailableTimes(available);
       })
       .catch(err => {
         console.error('Error fetching bookings', err);
@@ -135,7 +249,9 @@ function Booking({user}) {
         booking_date: selectedDate,
         booking_time: selectedTime,
         booking_type_id: selectedBookingType.id,
-        status: 'confirmed'
+        status: 'confirmed',
+        vehicle: registration,
+        comments,
       })
     })
     .then(r => {
@@ -146,15 +262,45 @@ function Booking({user}) {
 
   // Final confirmation
   const handleConfirm = e => {
-    e && e.preventDefault();
+    e.preventDefault();
+    // Validate required details for anonymous users
+    if (!user?.id) {
+      const { firstName, lastName, email, phone } = userDetails;
+      if (!firstName.trim() || !lastName.trim() || !email.trim() || !phone.trim()) {
+        setFormError('Please fill out all required fields.');
+        return;
+      }
+      // New: validate email format
+      const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailPattern.test(email)) {
+        setFormError('Please enter a valid email address.');
+        return;
+      }
+      setFormError('');
+    }
+    // require vehicle lookup for anonymous users
+    if (!(user && user.id) && !isVehicleValid) {
+      alert('Please click "Find Vehicle" to validate your registration before confirming your booking.');
+      return;
+    }
 
     if (user && user.id) {
       // Logged‐in: just book
       createBooking(user.id)
-        .then(({ booking }) => {
-          setMessage(`Success! Booking #${booking.id}`);
-          reset();
-        })
+      .then(({ booking }) => {
+        // stash everything we want to show in the confirmation
+        setBookingInfo({
+          bookingId: booking.id,
+          userDetails,
+          selectedBranch,
+          selectedBookingType,
+          selectedDate,
+          selectedTime,
+          comments,
+          vehicleDetails
+        });
+        setStep(6);
+      })
         .catch(msg => setMessage(msg));
     } else {
       // Anonymous: create temp user then book
@@ -166,7 +312,7 @@ function Booking({user}) {
           first_name: userDetails.firstName,
           last_name:  userDetails.lastName,
           email:      userDetails.email,
-          phone:      '',
+          phone:      userDetails.phone,
           password_hash: '',
           role:       'temporary'
         })
@@ -177,8 +323,18 @@ function Booking({user}) {
       })
       .then(({ user: tempUser }) => createBooking(tempUser.id))
       .then(({ booking }) => {
-        setMessage(`Success! Booking #${booking.id}`);
-        reset();
+        // stash everything like in logged‑in branch
+        setBookingInfo({
+          bookingId: booking.id,
+          userDetails,
+          selectedBranch,
+          selectedBookingType,
+          selectedDate,
+          selectedTime,
+          comments,
+          vehicleDetails
+        });
+        setStep(6);
       })
       .catch(msg => setMessage(msg));
     }
@@ -189,13 +345,54 @@ function Booking({user}) {
     setSelectedBookingType(null);
     setSelectedDate('');
     setSelectedTime('');
-    setUserDetails({ firstName:'', lastName:'', email:'' });
+    setUserDetails({ firstName:'', lastName:'', email:'', phone:'' });
+    setRegistration('');
+    setComments('');
+    setVehicleDetails(null);
+    setIsVehicleValid(false);
+    setVesError('');
   }
 
 
   return (
     <div className="container">
       <h2 className='section-title'>MAKE A BOOKING</h2>
+
+      <ul style={progressBarStyles}>
+        {progressSteps.map((stepItem, idx) => {
+          const stepNum = idx + 1;
+          let circleStyle = baseCircleStyles;
+          let textColor = '#ccc';
+          if (stepNum < step) {
+            circleStyle = completedCircleStyles;
+            textColor = '#0c2e6e';
+          } else if (stepNum === step) {
+            circleStyle = currentCircleStyles;
+            textColor = '#0c2e6e';
+          }
+          return (
+            <li
+              key={stepNum}
+              onClick={() => {
+                if (stepNum < step) {
+                  setStep(stepNum);
+                }
+              }}
+              style={{
+                flex: 1,
+                textAlign: 'center',
+                color: textColor,
+                cursor: stepNum < step ? 'pointer' : 'default'
+              }}
+            >
+              <span style={circleStyle}>
+                {stepNum < step ? '✓' : stepNum}
+              </span>
+              <span style={{ display: 'block' }}>{stepItem.label}</span>
+            </li>
+          );
+        })}
+      </ul>
 
       {/* Step 1: Branch selection (only if more than one) */}
       {step === 1 && branches.length > 1 && (
@@ -204,7 +401,7 @@ function Booking({user}) {
           <BranchSelection
             branches={branches}
             onBranchSelect={handleBranchSelect}
-            mapKey=""
+            mapKey="HIDDEN"
           />
         </div>
       )}
@@ -290,88 +487,36 @@ function Booking({user}) {
 
       {/* Step 5: User details & confirmation */}
       {step===5 && (
-        <div  style={{
-          maxWidth: '500px',
-          margin: '2rem auto',
-          padding: '1.5rem',
-          border: '1px solid #e0e0e0',
-          borderRadius: '8px',
-          boxShadow: '0 2px 8px rgba(0,0,0,0.05)',
-          backgroundColor: '#fff',
-        }}>
-          
-          <h3 className='section-subtitle'>
-            Review & Confirm
-          </h3>
+        <ReviewStep
+          user={user}
+          formError={formError}
+          userDetails={userDetails}
+          setUserDetails={setUserDetails}
+          registration={registration}
+          setRegistration={setRegistration}
+          isVehicleValid={isVehicleValid}
+          vehicleDetails={vehicleDetails}
+          setVehicleDetails={setVehicleDetails}
+          setIsVehicleValid={setIsVehicleValid}
+          setVesError={setVesError}
+          vesError={vesError}
+          comments={comments}
+          setComments={setComments}
+          handleFindVehicle={handleFindVehicle}
+          handleConfirm={handleConfirm}
+          selectedBranch={selectedBranch}
+          selectedBookingType={selectedBookingType}
+          selectedDate={selectedDate}
+          selectedTime={selectedTime}
+          formatDisplayDate={formatDisplayDate}
+        />
+      )}
 
-          {/* REVIEW SUMMARY */}
-          <div style={{ marginBottom: '1.5rem', lineHeight: 1.5 }}>
-            <p>
-              <strong>Location:</strong> {selectedBranch.branch_name}
-            </p>
-            <p>
-              <strong>Service:</strong> {selectedBookingType.name} — £{selectedBookingType.price}
-            </p>
-            <p>
-              <strong>Date:</strong> {formatDisplayDate(selectedDate)}
-            </p>
-            <p>
-              <strong>Time:</strong> {selectedTime.slice(0, 5)}
-            </p>
-          </div>
-
-          {user && user.id ? (
-            <>
-              <h3 className='section-subtitle'>Review & Condirm</h3>
-              <button onClick={handleConfirm} className='confirm-booking-button'>Confirm Booking</button>
-            </>
-          ) : (
-            <>
-              <h3 className='section-subtitle'>Review & Enter Details</h3>
-              <form onSubmit={handleConfirm}>
-                <div style={{
-                    display: 'grid',
-                    gridTemplateColumns: '1fr 1fr',
-                    gap: '1rem',
-                    marginBottom: '1rem',
-                }}>
-                  <div className='name-input'>
-                    <label className='details-form-label'></label>
-                      First Name
-                      <input
-                        required
-                        value={userDetails.firstName}
-                        onChange={e=>setUserDetails({...userDetails, firstName:e.target.value})}
-                        className='details-form-input'
-                      />
-                  </div>
-                  <div className='name-input'>
-                    <label className='details-form-label'></label>
-                      Last Name
-                      <input
-                        required
-                        value={userDetails.lastName}
-                        onChange={e=>setUserDetails({...userDetails, lastName:e.target.value})}
-                        className='details-form-input'
-                      />
-                  </div>
-                </div>
-                <div style={{ marginBottom: '1.5rem', display: 'flex', flexDirection: 'column' }}>
-                  <label className='details-form-label'></label>
-                    Email
-                    <input
-                      type="email"
-                      required
-                      value={userDetails.email}
-                      onChange={e=>setUserDetails({...userDetails, email:e.target.value})}
-                      className='details-form-input'
-                    />
-                </div>
-                <button type="submit" className='confirm-booking-button'>Confirm Booking</button>
-              </form>
-            </>
-          )}
-        </div>
+      {step === 6 && bookingInfo && (
+        <ConfirmationStep
+          {...bookingInfo}
+          reset={reset}
+        />
       )}
 
       {message && <p className="message">{message}</p>}
