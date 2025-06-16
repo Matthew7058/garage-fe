@@ -13,9 +13,7 @@ export default function ConfirmationStep({
 }) {
 
   // Build an embed‐map URL from the branch’s address (you can tweak to use lat/lng if you have it)
-  const mapSrc = `https://www.google.com/maps?q=${encodeURIComponent(
-    selectedBranch.address || selectedBranch.name
-  )}&output=embed`;
+  const mapSrc = `https://www.google.com/maps?q=${selectedBranch.lat},${selectedBranch.lng}&output=embed`;
 
   return (
     <div className="confirmation-container">
@@ -25,33 +23,57 @@ export default function ConfirmationStep({
           See you soon
           {userDetails.firstName ? `, ${userDetails.firstName}` : ''}!
         </h2>
-        <p>Thanks for booking with us.</p>
+        <p>A confimation email will be sent.</p>
       </div>
 
       <div className="confirmation-body">
-        <div className="confirmation-summary">
-          <p><strong>Booking #</strong> {bookingId}</p>
-          <p><strong>Date:</strong> {selectedDate}</p>
-          <p><strong>Time:</strong> {selectedTime.slice(0,5)}</p>
-          <p>
-            <strong>Service:</strong> {selectedBookingType.name} &ndash; £
-            {selectedBookingType.price}
-          </p>
-          <p><strong>Location:</strong> {selectedBranch.name}</p>
-          <p>
-            <strong>Name:</strong> {userDetails.firstName}{' '}
-            {userDetails.lastName}
-          </p>
+        <div
+          className="confirmation-summary"
+          style={{
+            padding: '1.5rem'
+          }}
+        >
+          <div className="confirmation-summary-item">
+            <span style={{ fontWeight: 600 }}>Booking #</span>
+            <span>{bookingId}</span>
+          </div>
+          <div className="confirmation-summary-item">
+            <span style={{ fontWeight: 600 }}>Date</span>
+            <span>{selectedDate}</span>
+          </div>
+          <div className="confirmation-summary-item">
+            <span style={{ fontWeight: 600 }}>Time</span>
+            <span>{selectedTime.slice(0, 5)}</span>
+          </div>
+          <div className="confirmation-summary-item">
+            <span style={{ fontWeight: 600 }}>Service</span>
+            <span>
+              {selectedBookingType.name} – £{selectedBookingType.price}
+            </span>
+          </div>
+          <div className="confirmation-summary-item">
+            <span style={{ fontWeight: 600 }}>Location</span>
+            <span>{selectedBranch.branch_name}</span>
+          </div>
+          <div className="confirmation-summary-item">
+            <span style={{ fontWeight: 600 }}>Name</span>
+            <span>
+              {userDetails.firstName} {userDetails.lastName}
+            </span>
+          </div>
           {vehicleDetails && (
-            <p>
-              <strong>Vehicle:</strong> {vehicleDetails.make}{' '}
-              {vehicleDetails.model} ({vehicleDetails.yearOfManufacture})
-            </p>
+            <div className="confirmation-summary-item">
+              <span style={{ fontWeight: 600 }}>Vehicle</span>
+              <span>
+                {vehicleDetails.make} {vehicleDetails.model} ({vehicleDetails.yearOfManufacture})
+              </span>
+            </div>
           )}
           {comments && (
-            <p>
-              <strong>Comments:</strong> {comments}
-            </p>
+            <div className="confirmation-summary-item">
+              <span style={{ fontWeight: 600 }}>Comments</span>
+              <span>{comments}</span>
+            </div>
           )}
         </div>
         <div className="confirmation-map">
@@ -65,6 +87,9 @@ export default function ConfirmationStep({
             allowFullScreen
           />
         </div>
+      </div>
+      <div className="confirmation-actions">
+        <a href="/" className="home-button">Return Home</a>
       </div>
     </div>
   );

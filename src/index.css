@@ -312,6 +312,12 @@ button:hover {
   font-size: 32pt;
 }
 
+.section-title-bookings {
+  text-align: center;
+  font-size: 32pt;
+  margin: 80px 0 50px 0;
+}
+
 .section-subtitle {
   text-align: center;
   font-family: "Barlow Semi Condensed", sans-serif;
@@ -618,7 +624,7 @@ button:hover {
   text-align: left;
   padding: 1rem;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 0px;
 }
 .confirmation-summary p {
   margin: 0.5rem 0;
@@ -626,6 +632,83 @@ button:hover {
 .confirmation-map {
   flex: 1;
   border: 1px solid #ccc;
-  border-radius: 8px;
+  border-radius: 0px;
   overflow: hidden;
+}
+
+.home-button {
+  background-color: #0c2e6e; 
+  color: #fff;
+  text-decoration: none;
+  margin-top: 30px;
+  padding: 0.9rem 2.5rem;
+  font-weight: 400;
+  font-size: 16pt;
+  transition: background 0.3s;
+  display: inline-block; /* Ensures padding is clickable */
+}
+
+.confirmation-summary-item {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 20px;
+  padding-bottom: 5px;
+  border-bottom: #000 0.5px dotted;
+}
+
+.bookings-admin-container {
+  margin-top: 80px;
+}
+
+.admin-heading {
+  font-size: 25pt;
+}
+
+/* ─── Shrink the all-day slot in TimeGrid views (day/week) ─── */
+.fc .fc-timegrid-all-day .fc-timegrid-slot-lane {
+  height: 20px !important;
+  overflow: hidden;
+}
+/* hide the “All-day” label if you want even more compactness */
+.fc .fc-timegrid-all-day .fc-timegrid-slot-label {
+  display: none !important;
+}
+
+/* ─── Shrink the all-day row in DayGrid (month) views ─── */
+.fc-day-grid .fc-row {
+  /* default min-height is 3em; reduce it to 1.5em (or whatever you like) */
+  min-height: 1.5em !important;
+}
+
+.btn-popup {
+  padding: 10px 30px;
+  font-size: 14px;
+  border-radius: 6px;
+  border: none;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.cancel {
+  background-color: #f44336;
+  color: white;
+}
+
+.paid {
+  background-color: #4caf50;
+  color: white;
+}
+
+.reschedule {
+  background-color: #2196f3;
+  color: white;
+}
+
+.invoice {
+  background-color: #ff9800;
+  color: white;
+}
+
+.btn-popup:hover {
+  opacity: 0.85;
 }

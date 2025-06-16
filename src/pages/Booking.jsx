@@ -249,7 +249,7 @@ function Booking({user}) {
         booking_date: selectedDate,
         booking_time: selectedTime,
         booking_type_id: selectedBookingType.id,
-        status: 'confirmed',
+        status: 'unpaid',
         vehicle: registration,
         comments,
       })
@@ -374,7 +374,8 @@ function Booking({user}) {
             <li
               key={stepNum}
               onClick={() => {
-                if (stepNum < step) {
+                // Disable navigation once on confirmation (step 6)
+                if (step < 6 && stepNum < step) {
                   setStep(stepNum);
                 }
               }}
@@ -382,7 +383,7 @@ function Booking({user}) {
                 flex: 1,
                 textAlign: 'center',
                 color: textColor,
-                cursor: stepNum < step ? 'pointer' : 'default'
+                cursor: step < 6 && stepNum < step ? 'pointer' : 'default'
               }}
             >
               <span style={circleStyle}>
