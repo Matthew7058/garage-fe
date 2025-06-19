@@ -4,6 +4,7 @@ import BranchSelection from '../components/BranchSelection';
 import ServiceSelection from '../components/ServiceSelection';
 import ReviewStep from '../components/ReviewStep';
 import ConfirmationStep from '../components/ConfirmationStep';
+import Footer from '../components/Footer';
 
 // Progress bar configuration
 const progressSteps = [
@@ -90,6 +91,7 @@ function Booking({user}) {
     setIsVehicleValid(false);
     // Use DVLA VES API to validate registration
     const vrn = registration.replace(/[^A-Za-z0-9]/g, '').toUpperCase();
+    /*
     fetch('/api/validate-vehicle', {
       method: 'POST',
       headers: {
@@ -97,6 +99,8 @@ function Booking({user}) {
       },
       body: JSON.stringify({ registrationNumber: vrn })
     })
+      */
+    fetch(`/api/mot-history/${vrn}`)
       .then(res => {
         if (!res.ok) throw new Error();
         return res.json();
@@ -355,173 +359,177 @@ function Booking({user}) {
 
 
   return (
-    <div className="container">
-      <h2 className='section-title'>MAKE A BOOKING</h2>
+    <div>
+      <div className="container">
+        <h2 className='section-title'>MAKE A BOOKING</h2>
 
-      <ul style={progressBarStyles}>
-        {progressSteps.map((stepItem, idx) => {
-          const stepNum = idx + 1;
-          let circleStyle = baseCircleStyles;
-          let textColor = '#ccc';
-          if (stepNum < step) {
-            circleStyle = completedCircleStyles;
-            textColor = '#0c2e6e';
-          } else if (stepNum === step) {
-            circleStyle = currentCircleStyles;
-            textColor = '#0c2e6e';
-          }
-          return (
-            <li
-              key={stepNum}
-              onClick={() => {
-                // Disable navigation once on confirmation (step 6)
-                if (step < 6 && stepNum < step) {
-                  setStep(stepNum);
-                }
-              }}
-              style={{
-                flex: 1,
-                textAlign: 'center',
-                color: textColor,
-                cursor: step < 6 && stepNum < step ? 'pointer' : 'default'
-              }}
-            >
-              <span style={circleStyle}>
-                {stepNum < step ? '✓' : stepNum}
-              </span>
-              <span style={{ display: 'block' }}>{stepItem.label}</span>
-            </li>
-          );
-        })}
-      </ul>
+        <ul style={progressBarStyles}>
+          {progressSteps.map((stepItem, idx) => {
+            const stepNum = idx + 1;
+            let circleStyle = baseCircleStyles;
+            let textColor = '#ccc';
+            if (stepNum < step) {
+              circleStyle = completedCircleStyles;
+              textColor = '#0c2e6e';
+            } else if (stepNum === step) {
+              circleStyle = currentCircleStyles;
+              textColor = '#0c2e6e';
+            }
+            return (
+              <li
+                key={stepNum}
+                onClick={() => {
+                  // Disable navigation once on confirmation (step 6)
+                  if (step < 6 && stepNum < step) {
+                    setStep(stepNum);
+                  }
+                }}
+                style={{
+                  flex: 1,
+                  textAlign: 'center',
+                  color: textColor,
+                  cursor: step < 6 && stepNum < step ? 'pointer' : 'default'
+                }}
+              >
+                <span style={circleStyle}>
+                  {stepNum < step ? '✓' : stepNum}
+                </span>
+                <span style={{ display: 'block' }}>{stepItem.label}</span>
+              </li>
+            );
+          })}
+        </ul>
 
-      {/* Step 1: Branch selection (only if more than one) */}
-      {step === 1 && branches.length > 1 && (
-        <div>
-          <h3 className='section-subtitle'>SELECT YOUR LOCATION</h3>
-          <BranchSelection
-            branches={branches}
-            onBranchSelect={handleBranchSelect}
-            mapKey="HIDDEN"
-          />
-        </div>
-      )}
-
-      {/* Step 2: Service selection */}
-      {step === 2 && (
-        <div>
-          <h3 className='section-subtitle'>Select a Service</h3>
-          <ServiceSelection
-            bookingTypes={bookingTypes}
-            onTypeSelect={handleSelectBookingType}
-          />
-        </div>
-      )}
-
-      
-
-      {/* Steps 3 & 4 combined: date on left, time on right */}
-      {(step === 3 || step === 4) && (
-        <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem' }}>
-          {/* LEFT COLUMN: date picker */}
-          <div style={{ flex: 1 }}>
-            <h3 className='section-subtitle' id="date-subtitle">Select a Date</h3>
-            <DateSelection
-              operatingHours={operatingHours}
-              onDateSelect={handleDateSelect}
+        {/* Step 1: Branch selection (only if more than one) */}
+        {step === 1 && branches.length > 1 && (
+          <div>
+            <h3 className='section-subtitle'>SELECT YOUR LOCATION</h3>
+            <BranchSelection
+              branches={branches}
+              onBranchSelect={handleBranchSelect}
+              mapKey="HIDDEN"
             />
           </div>
+        )}
 
-      {/* RIGHT COLUMN: only once date is picked (step 4) */}
-          <div style={{ flex: 1 }}>
-            {step === 4 ? (
-              <>
-                <h3 className='section-subtitle' id="date-subtitle">Pick a Time on {formatDisplayDate(selectedDate)}</h3>
-                {availableTimes.length > 0 ? (
-                  <div
-                  style={{
-                    display: 'grid',
-                    gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
-                    gap: '0.5rem',
-                    marginTop: '0.5rem',
-                  }}
-                >
-                    {availableTimes.map(t => (
-                        <button key={t} onClick={() => handleSelectTime(t)} style={{
-                          padding: '0.75rem 0',
-                          fontSize: '0.9rem',
-                          border: '1px solid #0c2e6e',
-                          borderRadius: '6px',
-                          backgroundColor: selectedTime === t ? '#0c2e6e' : '#fff',
-                          color: selectedTime === t ? '#fff' : '#0c2e6e',
-                          cursor: 'pointer',
-                          transition: 'background-color 0.2s, color 0.2s',
-                        }}
-                        onMouseEnter={e => {
-                          if (selectedTime !== t) e.currentTarget.style.backgroundColor = '#f0f8ff';
-                        }}
-                        onMouseLeave={e => {
-                          if (selectedTime !== t) e.currentTarget.style.backgroundColor = '#fff';
-                        }}>
-                          {t.slice(0,5)}
-                        </button>
-                    ))}
-                  </div>
-                ) : (
-                  <div style={{ marginTop: '1rem', textAlign: 'center', color: '#666' }}>
-                    <p>
-                      No available slots.{' '}
-                    </p>
-                  </div>
-                )}
-              </>
-            ) : (
-              <div style={{ marginTop: '1rem', textAlign: 'center', color: '#666' }}>
-                <p style={{ color: '#666' }}>
-                  Please pick a date to see available times…
-                </p>
-              </div>
-            )}
+        {/* Step 2: Service selection */}
+        {step === 2 && (
+          <div>
+            <h3 className='section-subtitle'>Select a Service</h3>
+            <ServiceSelection
+              bookingTypes={bookingTypes}
+              onTypeSelect={handleSelectBookingType}
+            />
           </div>
-        </div>
-      )}
+        )}
 
-      {/* Step 5: User details & confirmation */}
-      {step===5 && (
-        <ReviewStep
-          user={user}
-          formError={formError}
-          userDetails={userDetails}
-          setUserDetails={setUserDetails}
-          registration={registration}
-          setRegistration={setRegistration}
-          isVehicleValid={isVehicleValid}
-          vehicleDetails={vehicleDetails}
-          setVehicleDetails={setVehicleDetails}
-          setIsVehicleValid={setIsVehicleValid}
-          setVesError={setVesError}
-          vesError={vesError}
-          comments={comments}
-          setComments={setComments}
-          handleFindVehicle={handleFindVehicle}
-          handleConfirm={handleConfirm}
-          selectedBranch={selectedBranch}
-          selectedBookingType={selectedBookingType}
-          selectedDate={selectedDate}
-          selectedTime={selectedTime}
-          formatDisplayDate={formatDisplayDate}
-        />
-      )}
+        
 
-      {step === 6 && bookingInfo && (
-        <ConfirmationStep
-          {...bookingInfo}
-          reset={reset}
-        />
-      )}
+        {/* Steps 3 & 4 combined: date on left, time on right */}
+        {(step === 3 || step === 4) && (
+          <div style={{ display: 'flex', gap: '2rem', marginTop: '1rem' }}>
+            {/* LEFT COLUMN: date picker */}
+            <div style={{ flex: 1 }}>
+              <h3 className='section-subtitle' id="date-subtitle">Select a Date</h3>
+              <DateSelection
+                operatingHours={operatingHours}
+                onDateSelect={handleDateSelect}
+              />
+            </div>
 
-      {message && <p className="message">{message}</p>}
+        {/* RIGHT COLUMN: only once date is picked (step 4) */}
+            <div style={{ flex: 1 }}>
+              {step === 4 ? (
+                <>
+                  <h3 className='section-subtitle' id="date-subtitle">Pick a Time on {formatDisplayDate(selectedDate)}</h3>
+                  {availableTimes.length > 0 ? (
+                    <div
+                    style={{
+                      display: 'grid',
+                      gridTemplateColumns: 'repeat(auto-fill, minmax(80px, 1fr))',
+                      gap: '0.5rem',
+                      marginTop: '0.5rem',
+                    }}
+                  >
+                      {availableTimes.map(t => (
+                          <button key={t} onClick={() => handleSelectTime(t)} style={{
+                            padding: '0.75rem 0',
+                            fontSize: '0.9rem',
+                            border: '1px solid #0c2e6e',
+                            borderRadius: '6px',
+                            backgroundColor: selectedTime === t ? '#0c2e6e' : '#fff',
+                            color: selectedTime === t ? '#fff' : '#0c2e6e',
+                            cursor: 'pointer',
+                            transition: 'background-color 0.2s, color 0.2s',
+                          }}
+                          onMouseEnter={e => {
+                            if (selectedTime !== t) e.currentTarget.style.backgroundColor = '#f0f8ff';
+                          }}
+                          onMouseLeave={e => {
+                            if (selectedTime !== t) e.currentTarget.style.backgroundColor = '#fff';
+                          }}>
+                            {t.slice(0,5)}
+                          </button>
+                      ))}
+                    </div>
+                  ) : (
+                    <div style={{ marginTop: '1rem', textAlign: 'center', color: '#666' }}>
+                      <p>
+                        No available slots.{' '}
+                      </p>
+                    </div>
+                  )}
+                </>
+              ) : (
+                <div style={{ marginTop: '1rem', textAlign: 'center', color: '#666' }}>
+                  <p style={{ color: '#666' }}>
+                    Please pick a date to see available times…
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+        )}
+
+        {/* Step 5: User details & confirmation */}
+        {step===5 && (
+          <ReviewStep
+            user={user}
+            formError={formError}
+            userDetails={userDetails}
+            setUserDetails={setUserDetails}
+            registration={registration}
+            setRegistration={setRegistration}
+            isVehicleValid={isVehicleValid}
+            vehicleDetails={vehicleDetails}
+            setVehicleDetails={setVehicleDetails}
+            setIsVehicleValid={setIsVehicleValid}
+            setVesError={setVesError}
+            vesError={vesError}
+            comments={comments}
+            setComments={setComments}
+            handleFindVehicle={handleFindVehicle}
+            handleConfirm={handleConfirm}
+            selectedBranch={selectedBranch}
+            selectedBookingType={selectedBookingType}
+            selectedDate={selectedDate}
+            selectedTime={selectedTime}
+            formatDisplayDate={formatDisplayDate}
+          />
+        )}
+
+        {step === 6 && bookingInfo && (
+          <ConfirmationStep
+            {...bookingInfo}
+            reset={reset}
+          />
+        )}
+
+        {message && <p className="message">{message}</p>}
+      </div>
+      <Footer />
     </div>
+    
   );
 }
 

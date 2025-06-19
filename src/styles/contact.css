@@ -1,0 +1,236 @@
+/* Contact Page Styles – Updated Design */
+
+:root {
+  --primary-blue: #0c2e6e;
+  --secondary-blue: #003399;
+  --primary-red: #d33f2d;
+}
+
+.contact-page {
+  font-family: 'Helvetica Neue', Arial, sans-serif;
+  color: #333;
+}
+
+/* Top section wrapper */
+.contact-section {
+  padding: 2rem 1rem;
+}
+
+.contact-container {
+  display: flex;
+  gap: 2rem;
+  max-width: 1200px;
+  margin: 0 auto;
+  flex-wrap: wrap;
+}
+
+/* Two-column split: form is 2/3, info is 1/3 */
+.contact-form-area {
+  flex: 1.5;
+}
+.contact-info-area {
+  flex: 1;
+}
+
+.contact-form-area,
+.contact-info-area {
+  padding: 1.5rem;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+}
+
+/* Underlined section titles */
+.contact-title,
+.info-title {
+  font-size: 1.75rem;
+  padding-bottom: 0.5rem;
+  margin-bottom: 1rem;
+  border-bottom: 1px solid #000;
+}
+.contact-title .text-green { color: #46741a; }
+.contact-title .text-blue { color: var(--secondary-blue); }
+.info-title { color: var(--secondary-blue); }
+
+/* Form layout */
+.contact-form .grid {
+    margin-top: 30px;
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    gap: 1rem;
+}
+.contact-form .full-width {
+  grid-column: 1 / -1;
+}
+.form-group {
+  display: flex;
+  flex-direction: column;
+  margin-bottom: 1rem;
+}
+.form-group label {
+  font-size: 0.9rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+/* Inputs & textarea: bottom-only border */
+.contact-form input,
+.contact-form textarea {
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid #ccc;
+  border-radius: 0;
+  background: transparent;
+  padding: 0.5rem 0;
+  font-size: 1rem;
+  transition: border-color 0.2s;
+}
+.contact-form input:focus,
+.contact-form textarea:focus {
+  outline: none;
+  border-color: var(--primary-blue);
+}
+.contact-form input::placeholder,
+.contact-form textarea::placeholder {
+  color: #999;
+}
+
+/* Newsletter checkbox */
+.newsletter-signup {
+  margin-bottom: 1.5rem;
+}
+.newsletter-signup label {
+  font-size: 0.9rem;
+  color: #666;
+}
+
+/* Submit button – full width */
+.submit-button2 {
+  width: 100%;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  background: var(--primary-blue);
+  color: #fff;
+  border: none;
+  border-radius: 4px;
+  margin-top: 50px;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+.submit-button2:hover {
+  background-color: #094071;
+}
+
+/* Book-online button */
+.book-button2 {
+  display: block;
+  width: 100%;
+  text-align: center;
+  padding: 0.75rem;
+  font-size: 1rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  background: var(--primary-red);
+  color: #fff;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+  transition: background-color 0.2s;
+}
+.book-button2:hover {
+  background: #b53229;
+}
+
+/* Branch info cards */
+.branches-list {
+  margin-top: 1.5rem;
+}
+.branch-card {
+  margin-bottom: 30px;
+}
+.branch-name {
+  font-size: 1.1rem;
+  color: var(--primary-blue);
+  margin-bottom: 0.25rem;
+}
+.branch-address,
+.branch-card p {
+  font-size: 0.9rem;
+  margin-bottom: 0px;
+  line-height: 0.75;
+}
+
+/* Operating hours */
+.opening-hours h4 {
+  font-size: 1rem;
+  color: var(--primary-blue);
+  margin-bottom: 0.5rem;
+}
+.opening-hours li {
+  font-size: 0.85rem;
+  color: #555;
+  margin-bottom: 0.25rem;
+}
+
+/* Map at bottom */
+.map-section {
+  margin-top: 2rem;
+  height: 400px;
+  width: 100%;
+}
+.map-container {
+  width: 100%;
+  height: 100%;
+}
+
+/* Responsive adjustments */
+@media (max-width: 768px) {
+  .contact-container {
+    flex-direction: column;
+  }
+  .contact-form .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Combined opening hours table */
+.combined-hours {
+  margin-top: 1.5rem;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: var(--card-shadow);
+}
+.combined-hours h4 {
+  margin-bottom: 0.75rem;
+  font-size: 1.1rem;
+  color: var(--primary-blue);
+  border-bottom: 1px solid #ccc;
+  padding-bottom: 0.25rem;
+}
+.hours-table {
+  width: 100%;
+  border-collapse: collapse;
+  text-align: left;
+  font-size: 0.9rem;
+}
+.hours-table th,
+.hours-table td {
+  padding: 0.5rem 0.75rem;
+  border-bottom: 1px solid #e0e0e0;
+}
+.hours-table th {
+  font-weight: 600;
+  color: #333;
+}
+.hours-table td {
+  color: #555;
+}
+.hours-table tr:last-child td {
+  border-bottom: none;
+}
+/* Detail icon styling */
+.detail-icon {
+  margin-right: 0.8rem;
+  color: var(--primary-blue);
+}

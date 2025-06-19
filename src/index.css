@@ -201,7 +201,7 @@ button:hover {
 /* Container that splits the page 50/50 */
 .container2 {
   display: flex;
-  height: 100vh; /* Full viewport height */
+  height: 800px; /* Full viewport height */
 }
 
 /* Each half takes up 50% width */
@@ -257,7 +257,7 @@ button:hover {
 }
 
  #services {
-  padding: 0 40px;
+  padding: 30px 40px 60px 40px;
   max-width: 1200px;
   margin: 0 auto;
 }
@@ -430,7 +430,7 @@ button:hover {
 /* AuthPage.css */
 
 .auth-container {
-  min-height: 100vh;
+  height: 700px;
   display: flex;
   justify-content: center;
   align-items: center;
@@ -711,4 +711,12 @@ button:hover {
 
 .btn-popup:hover {
   opacity: 0.85;
+}
+
+.save {
+  background-color: #4caf50;
+}
+
+.back {
+  background-color: #f44336;
 }

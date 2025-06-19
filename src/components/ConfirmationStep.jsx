@@ -65,7 +65,7 @@ export default function ConfirmationStep({
             <div className="confirmation-summary-item">
               <span style={{ fontWeight: 600 }}>Vehicle</span>
               <span>
-                {vehicleDetails.make} {vehicleDetails.model} ({vehicleDetails.yearOfManufacture})
+                {vehicleDetails.make} {vehicleDetails.model} ({vehicleDetails.manufactureDate.slice(0, 4)})
               </span>
             </div>
           )}
